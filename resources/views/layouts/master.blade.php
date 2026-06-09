@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <link href="{{ asset('/css/library/bootstrap.min.css') }}" rel="stylesheet">
 
@@ -27,45 +29,124 @@
             font-weight: 700;
             letter-spacing: -0.5px;
         }
+        /* Hiệu ứng chuyển động mượt mà cho dropdown và link menu */
+        .nav-link {
+            transition: color 0.15s ease-in-out;
+        }
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .dropdown-item.active {
+            background-color: #0d6efd;
+        }
+        /* Tối ưu hiệu ứng di chuột (Hover) cho UI Minimalist */
+        .navbar-nav .nav-link {
+            color: #6c757d !important;
+            font-size: 14px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            transition: all 0.2s ease-in-out;
+        }
+        .navbar-nav .nav-link:hover {
+            color: #0d6efd !important;
+            background-color: #f1f7ff;
+        }
+        .navbar-nav .nav-link.active {
+            color: #0d6efd !important;
+            background-color: #e7f1ff !important;
+        }
+        .dropdown-menu {
+            border-radius: 12px !important;
+            padding: 6px !important;
+        }
+        .dropdown-item {
+            border-radius: 8px !important;
+            font-size: 14px;
+        }
+        .btn-outline-danger:hover {
+            background-color: #dc3545 !important;
+            color: white !important;
+        }
     </style>
     @yield('styles')
 </head>
 <body>
 
 @auth
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm py-2">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm border-bottom py-2">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="{{ route('dashboard') }}">
-                <span class="fs-4 me-2">🏥</span> ClinicHub
+            <a class="navbar-brand d-flex align-items-center fw-bold text-dark fs-4" href="{{ route('dashboard') }}">
+                <span class="me-2" style="filter: drop-shadow(0px 2px 4px rgba(13,110,253,0.2));">🏥</span>
+                <span style="background: linear-gradient(45deg, #0d6efd, #0a58ca); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ClinicHub</span>
             </a>
 
-            <button class="navbar-expand-lg navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+            <button class="navbar-toggler border-0 shadow-none px-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="mainNavbar">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-3">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 gap-1">
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('dashboard') ? 'active fw-bold' : '' }}" href="{{ route('dashboard') }}">Tổng quan</a>
+                        <a class="nav-link px-3 rounded-2 fw-medium {{ request()->routeIs('dashboard') ? 'active bg-light text-primary fw-semibold' : 'text-secondary' }}" href="{{ route('dashboard') }}">
+                            <i class="fas fa-chart-pie me-1.5 small"></i>Tổng quan
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Bệnh nhân</a>
+                        <a class="nav-link px-3 rounded-2 fw-medium text-secondary" href="#">
+                            <i class="fas fa-user-injured me-1.5 small"></i>Bệnh nhân
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Lịch hẹn</a>
+                        <a class="nav-link px-3 rounded-2 fw-medium text-secondary" href="#">
+                            <i class="fas fa-calendar-alt me-1.5 small"></i>Lịch hẹn
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Đơn thuốc</a>
+                        <a class="nav-link px-3 rounded-2 fw-medium text-secondary" href="#">
+                            <i class="fas fa-prescriptions me-1.5 small"></i>Đơn thuốc
+                        </a>
+                    </li>
+
+                    @php
+                        $locale = App::getLocale();
+                    @endphp
+                    <li class="nav-item dropdown ms-lg-2">
+                        <a class="nav-link dropdown-toggle text-secondary fw-medium d-flex align-items-center gap-1 px-3" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-globe text-muted me-1"></i> {{ $locale === 'vi' ? 'Tiếng Việt' : 'English' }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end border border-light shadow-sm mt-2" aria-labelledby="langDropdown">
+                            <li>
+                                <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ $locale === 'vi' ? 'active bg-primary text-white' : 'text-dark' }}" href="{{ route('locale', ['locale' => 'vi']) }}">
+                                    <span>🇻🇳 Tiếng Việt</span>
+                                    @if($locale === 'vi') <i class="fas fa-check small ms-3"></i> @endif
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ $locale === 'en' ? 'active bg-primary text-white' : 'text-dark' }}" href="{{ route('locale', ['locale' => 'en']) }}">
+                                    <span>🇺🇸 English</span>
+                                    @if($locale === 'en') <i class="fas fa-check small ms-3"></i> @endif
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
 
-                <div class="d-flex align-items-center text-white">
-                    <span class="me-3 small">Bác sĩ: <strong class="text-warning">{{ Auth::user()->name ?? 'Admin' }}</strong></span>
+                <div class="d-flex align-items-center gap-3 border-top border-light pt-3 pt-lg-0 mt-3 mt-lg-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="bg-light text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 36px; height: 36px; font-size: 14px;">
+                            {{ mb_substr(Auth::user()->name ?? 'A', 0, 1) }}
+                        </div>
+                        <div class="d-flex flex-column">
+                            <span class="text-dark fw-semibold small lh-1 mb-1">{{ Auth::user()->name ?? 'Test User' }}</span>
+                        </div>
+                    </div>
 
-                    <form method="POST" action="{{ route('logout') }}" class="m-0">
+                    <form method="POST" action="{{ route('logout') }}" class="m-0 ms-lg-2">
                         @csrf
-                        <button type="submit" class="btn btn-outline-light btn-sm fw-medium px-3 rounded-pill">
-                            Đăng xuất
+                        <button type="submit" class="btn btn-outline-danger btn-sm border-0 fw-medium px-3 py-1.5 rounded-3 d-flex align-items-center gap-1.5 bg-light-hover" style="font-size: 13px;">
+                            <i class="fas fa-sign-out-alt"></i> {{ __('Logout') }}
                         </button>
                     </form>
                 </div>
@@ -82,11 +163,11 @@
     <footer class="bg-white border-top py-3 mt-auto text-muted">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-md-6 text-center text-md-start small">
+                <div class="col-md-6 text-center text-md-start small mb-2 mb-md-0">
                     &copy; {{ date('Y') }} <strong>ClinicHub</strong>. Tất cả quyền được bảo lưu.
                 </div>
-                <div class="col-md-6 text-center text-md-end small">
-                    Version 1.0.0
+                <div class="col-md-6 text-center text-md-end small text-secondary">
+                    Hệ thống quản lý nội bộ <span class="badge bg-secondary-soft text-dark border ms-1">v1.0.0</span>
                 </div>
             </div>
         </div>
