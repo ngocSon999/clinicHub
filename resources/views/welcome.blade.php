@@ -1,10 +1,30 @@
-@extends('layouts.master')
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>ClinicHub - Hệ Thống Quản Lý Phòng Khám Toàn Diện</title>
 
-@section('title', 'ClinicHub - Hệ Thống Quản Lý Phòng Khám Toàn Diện')
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-@section('styles')
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <link href="{{ asset('/css/library/bootstrap.min.css') }}" rel="stylesheet">
+
     <style>
-        /* Tối ưu giao diện Landing Page chuyên nghiệp */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        main {
+            flex: 1;
+        }
         .hero-section {
             background: linear-gradient(135deg, #ffffff 50%, #e7f1ff 100%);
             padding: 80px 0;
@@ -32,6 +52,7 @@
         .nav-link {
             font-weight: 500;
             color: #495057;
+            transition: color 0.15s ease-in-out;
         }
         .nav-link:hover {
             color: #0d6efd;
@@ -41,34 +62,89 @@
             object-fit: cover;
             border-radius: 20px;
         }
+        @media (max-width: 992px) {
+            .dropdown-menu-end {
+                left: 0 !important;
+                right: auto !important;
+            }
+        }
     </style>
-@endsection
+</head>
+<body>
 
-@section('content')
-    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top border-bottom py-3">
-        <div class="container">
-            <a class="navbar-brand fw-bold text-primary fs-3 d-flex align-items-center" href="#">
-                <span class="me-2">🏥</span> ClinicHub
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link px-3" href="#features">Tính năng</a></li>
-                    <li class="nav-item"><a class="nav-link px-3" href="#search-patient">Tra cứu bệnh nhân</a></li>
-                    <li class="nav-item"><a class="nav-link px-3" href="#about">Về chúng tôi</a></li>
-                </ul>
+<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top border-bottom py-3">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-primary fs-3 d-flex align-items-center" href="#">
+            <span class="me-2">🏥</span> ClinicHub
+        </a>
+        <button class="navbar-toggler border-0 shadow-none px-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link px-3" href="#features">Tính năng</a></li>
+                <li class="nav-item"><a class="nav-link px-3" href="#search-patient">Tra cứu bệnh nhân</a></li>
+                <li class="nav-item"><a class="nav-link px-3" href="#about">Về chúng tôi</a></li>
+            </ul>
+            <div class="d-flex align-items-center">
+                @auth
+                    <div class="dropdown">
+                        <a class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark border-0 px-3 py-1 rounded-2 bg-light-hover" href="#" id="userNavbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="far fa-user-circle fs-5 me-2 text-secondary"></i>
+
+                            <div class="d-inline-flex flex-column text-start me-1">
+                                <span class="fw-semibold small lh-base">{{ Auth::user()->name ?? 'Test User' }}</span>
+                            </div>
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end border border-light shadow-sm mt-2 animate slideIn" aria-labelledby="userNavbarDropdown" style="border-radius: 12px; padding: 6px; min-width: 210px;">
+                            <li class="px-3 py-2.5 border-bottom border-light mb-1 d-sm-none bg-light rounded-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="far fa-user-circle text-secondary fs-5"></i>
+                                    <strong class="text-dark small">{{ Auth::user()->name ?? 'Test User' }}</strong>
+                                </div>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-secondary" href="{{ url('/dashboard') }}" style="border-radius: 8px;">
+                                    <i class="fas fa-desktop text-muted" style="width: 16px;"></i>
+                                    <span>Bàn làm việc</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-secondary" href="#" style="border-radius: 8px;">
+                                    <i class="fas fa-user-cog text-muted" style="width: 16px;"></i>
+                                    <span>Hồ sơ cá nhân</span>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider bg-light"></li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}" class="m-0">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger" style="border-radius: 8px;">
+                                        <i class="fas fa-sign-out-alt" style="width: 16px;"></i>
+                                        <span>{{ __('Logout') }}</span>
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}" class="btn btn-outline-primary fw-semibold px-4 rounded-pill">
+                        <i class="fas fa-sign-in-alt me-1.5 small"></i> Đăng nhập
+                    </a>
+                @endauth
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
+<main>
     <header class="hero-section">
         <div class="container">
             <div class="row align-items-center g-5">
                 <div class="col-lg-6 text-center text-lg-start">
                     <span class="badge text-primary fw-semibold px-3 py-2 rounded-pill mb-3" style="background-color: rgba(13, 110, 253, 0.1);">🚀 Giải pháp số hóa y tế nội bộ</span>
-                    <h1 class="display-5 fw-bold text-dark lh-sm mb-3">
+                    <h1 class="display-5 fw-bold text-dark aristocratic-title lh-sm mb-3">
                         Nền tảng vận hành <br><span class="text-primary">Phòng khám chuyên nghiệp</span>
                     </h1>
                     <p class="lead text-muted mb-4">
@@ -120,16 +196,7 @@
             </div>
 
             <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card h-100 p-4 feature-card shadow-sm">
-                        <div class="card-body">
-                            <div class="icon-box mb-4">👥</div>
-                            <h4 class="fw-bold text-dark mb-3">Phân quyền nhân sự</h4>
-                            <p class="text-muted mb-0">Tạo không gian làm việc chuyên biệt cho từng bộ phận: Bác sĩ khám bệnh, Tiếp tân đón tiếp, Kế toán xuất hóa đơn.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="card h-100 p-4 feature-card shadow-sm">
                         <div class="card-body">
                             <div class="icon-box mb-4">📑</div>
@@ -138,7 +205,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="card h-100 p-4 feature-card shadow-sm">
                         <div class="card-body">
                             <div class="icon-box mb-4">📦</div>
@@ -150,21 +217,25 @@
             </div>
         </div>
     </section>
+</main>
 
-    <footer id="about" class="bg-dark text-white-50 py-5">
-        <div class="container">
-            <div class="row g-4 text-center text-md-start">
-                <div class="col-md-6">
-                    <span class="fw-bold text-white fs-4">🏥 ClinicHub</span>
-                    <p class="small mt-2 text-white-50" style="max-width: 350px;">
-                        Hệ thống quản lý hoạt động khám chữa bệnh nội bộ, mang lại sự tiện nghi và chính xác cho các cơ sở y tế hiện đại.
-                    </p>
-                </div>
-                <div class="col-md-6 text-md-end align-self-center">
-                    <p class="small mb-0">&copy; {{ date('Y') }} ClinicHub Platform. Bảo lưu mọi quyền nội bộ.</p>
-                    <p class="small text-muted mb-0">Hệ thống phân phối dành riêng cho nhân viên y tế.</p>
-                </div>
+<footer id="about" class="bg-dark text-white-50 py-5">
+    <div class="container">
+        <div class="row g-4 text-center text-md-start">
+            <div class="col-md-6">
+                <span class="fw-bold text-white fs-4">🏥 ClinicHub</span>
+                <p class="small mt-2 text-white-50" style="max-width: 350px;">
+                    Hệ thống quản lý hoạt động khám chữa bệnh nội bộ, mang lại sự tiện nghi và chính xác cho các cơ sở y tế hiện đại.
+                </p>
+            </div>
+            <div class="col-md-6 text-md-end align-self-center">
+                <p class="small mb-0">&copy; {{ date('Y') }} ClinicHub Platform. Bảo lưu mọi quyền nội bộ.</p>
+                <p class="small text-muted mb-0">Hệ thống phân phối dành riêng cho nhân viên y tế.</p>
             </div>
         </div>
-    </footer>
-@endsection
+    </div>
+</footer>
+
+<script src="{{ asset('/js/library/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>

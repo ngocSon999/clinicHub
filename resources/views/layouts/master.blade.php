@@ -29,7 +29,6 @@
             font-weight: 700;
             letter-spacing: -0.5px;
         }
-        /* Hiệu ứng chuyển động mượt mà cho dropdown và link menu */
         .nav-link {
             transition: color 0.15s ease-in-out;
         }
@@ -41,7 +40,6 @@
         .dropdown-item.active {
             background-color: #0d6efd;
         }
-        /* Tối ưu hiệu ứng di chuột (Hover) cho UI Minimalist */
         .navbar-nav .nav-link {
             color: #6c757d !important;
             font-size: 14px;
@@ -65,9 +63,12 @@
             border-radius: 8px !important;
             font-size: 14px;
         }
-        .btn-outline-danger:hover {
-            background-color: #dc3545 !important;
-            color: white !important;
+
+        @media (max-width: 992px) {
+            .dropdown-menu-end {
+                left: 0 !important;
+                right: auto !important;
+            }
         }
     </style>
     @yield('styles')
@@ -76,7 +77,7 @@
 
 @auth
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm border-bottom py-2">
-        <div class="container">
+        <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center fw-bold text-dark fs-4" href="{{ route('dashboard') }}">
                 <span class="me-2" style="filter: drop-shadow(0px 2px 4px rgba(13,110,253,0.2));">🏥</span>
                 <span style="background: linear-gradient(45deg, #0d6efd, #0a58ca); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ClinicHub</span>
@@ -120,35 +121,60 @@
                             <li>
                                 <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ $locale === 'vi' ? 'active bg-primary text-white' : 'text-dark' }}" href="{{ route('locale', ['locale' => 'vi']) }}">
                                     <span>🇻🇳 Tiếng Việt</span>
-                                    @if($locale === 'vi') <i class="fas fa-check small ms-3"></i> @endif
+                                    <i class="fas fa-check small ms-3"></i>
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ $locale === 'en' ? 'active bg-primary text-white' : 'text-dark' }}" href="{{ route('locale', ['locale' => 'en']) }}">
                                     <span>🇺🇸 English</span>
-                                    @if($locale === 'en') <i class="fas fa-check small ms-3"></i> @endif
+                                    <i class="fas fa-check small ms-3"></i>
                                 </a>
                             </li>
                         </ul>
                     </li>
                 </ul>
 
-                <div class="d-flex align-items-center gap-3 border-top border-light pt-3 pt-lg-0 mt-3 mt-lg-0">
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="bg-light text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 36px; height: 36px; font-size: 14px;">
-                            {{ mb_substr(Auth::user()->name ?? 'A', 0, 1) }}
-                        </div>
-                        <div class="d-flex flex-column">
-                            <span class="text-dark fw-semibold small lh-1 mb-1">{{ Auth::user()->name ?? 'Test User' }}</span>
-                        </div>
-                    </div>
+                <div class="d-flex align-items-center border-top border-light pt-3 pt-lg-0 mt-3 mt-lg-0">
+                    <div class="dropdown">
+                        <a class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark border-0 px-3 py-1 rounded-2 bg-light-hover" href="#" id="userNavbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="far fa-user-circle fs-5 me-2 text-secondary"></i>
 
-                    <form method="POST" action="{{ route('logout') }}" class="m-0 ms-lg-2">
-                        @csrf
-                        <button type="submit" class="btn btn-outline-danger btn-sm border-0 fw-medium px-3 py-1.5 rounded-3 d-flex align-items-center gap-1.5 bg-light-hover" style="font-size: 13px;">
-                            <i class="fas fa-sign-out-alt"></i> {{ __('Logout') }}
-                        </button>
-                    </form>
+                            <div class="d-inline-flex flex-column text-start me-1">
+                                <span class="fw-semibold small lh-base">{{ Auth::user()->name ?? 'Test User' }}</span>
+                            </div>
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end border border-light shadow-sm mt-2 animate slideIn" aria-labelledby="userNavbarDropdown" style="border-radius: 12px; padding: 6px; min-width: 210px;">
+                            <li class="px-3 py-2.5 border-bottom border-light mb-1 d-sm-none bg-light rounded-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="far fa-user-circle text-secondary fs-5"></i>
+                                    <strong class="text-dark small">{{ Auth::user()->name ?? 'Test User' }}</strong>
+                                </div>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-secondary" href="{{ url('/dashboard') }}" style="border-radius: 8px;">
+                                    <i class="fas fa-desktop text-muted" style="width: 16px;"></i>
+                                    <span>Bàn làm việc</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-secondary" href="#" style="border-radius: 8px;">
+                                    <i class="fas fa-user-cog text-muted" style="width: 16px;"></i>
+                                    <span>Hồ sơ cá nhân</span>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider bg-light"></li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}" class="m-0">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger" style="border-radius: 8px;">
+                                        <i class="fas fa-sign-out-alt" style="width: 16px;"></i>
+                                        <span>{{ __('Logout') }}</span>
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
