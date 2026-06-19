@@ -74,7 +74,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top border-bottom py-3">
     <div class="container-fluid">
-        <a class="navbar-brand fw-bold text-primary fs-3 d-flex align-items-center" href="#">
+        <a class="navbar-brand fw-bold text-primary fs-3 d-flex align-items-center" href="{{ auth()->check() ? route('dashboard') : url('/') }}">
             <span class="me-2">🏥</span> ClinicHub
         </a>
         <button class="navbar-toggler border-0 shadow-none px-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

@@ -158,7 +158,8 @@
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-secondary" href="#" style="border-radius: 8px;">
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-secondary"
+                                   href="{{ route('profile.edit') }}" style="border-radius: 8px;">
                                     <i class="fas fa-user-cog text-muted" style="width: 16px;"></i>
                                     <span>Hồ sơ cá nhân</span>
                                 </a>
