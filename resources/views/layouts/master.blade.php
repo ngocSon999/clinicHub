@@ -13,6 +13,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <link href="{{ asset('/css/library/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('/css/library/dataTables.bootstrap5.min.css') }}" rel="stylesheet">
 
     <style>
         body {
@@ -106,7 +107,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link px-3 rounded-2 fw-medium text-secondary" href="#">
-                            <i class="fas fa-prescriptions me-1.5 small"></i>Đơn thuốc
+                            <i class="fas fa-prescription me-1.5 small"></i>Đơn thuốc
                         </a>
                     </li>
 
@@ -115,7 +116,7 @@
                     @endphp
                     <li class="nav-item dropdown ms-lg-2">
                         <a class="nav-link dropdown-toggle text-secondary fw-medium d-flex align-items-center gap-1 px-3" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-globe text-muted me-1"></i> {{ $locale === 'vi' ? 'Tiếng Việt' : 'English' }}
+                            <i class="fas fa-globe text-muted me-1.5 small"></i> {{ $locale === 'vi' ? 'Tiếng Việt' : 'English' }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end border border-light shadow-sm mt-2" aria-labelledby="langDropdown">
                             <li>
@@ -132,51 +133,58 @@
                             </li>
                         </ul>
                     </li>
-                </ul>
-
-                <div class="d-flex align-items-center border-top border-light pt-3 pt-lg-0 mt-3 mt-lg-0">
-                    <div class="dropdown">
-                        <a class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark border-0 px-3 py-1 rounded-2 bg-light-hover" href="#" id="userNavbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="far fa-user-circle fs-5 me-2 text-secondary"></i>
-
-                            <div class="d-inline-flex flex-column text-start me-1">
-                                <span class="fw-semibold small lh-base">{{ Auth::user()->name ?? 'Test User' }}</span>
-                            </div>
+                    <li class="nav-item dropdown ms-lg-2">
+                        <a class="nav-link dropdown-toggle text-secondary fw-medium d-flex align-items-center gap-1 px-3" href="#" id="settingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-cog me-1.5 small"></i> {{ __('Setting') }}
                         </a>
-
-                        <ul class="dropdown-menu dropdown-menu-end border border-light shadow-sm mt-2 animate slideIn" aria-labelledby="userNavbarDropdown" style="border-radius: 12px; padding: 6px; min-width: 210px;">
-                            <li class="px-3 py-2.5 border-bottom border-light mb-1 d-sm-none bg-light rounded-3">
-                                <div class="d-flex align-items-center gap-2">
-                                    <i class="far fa-user-circle text-secondary fs-5"></i>
-                                    <strong class="text-dark small">{{ Auth::user()->name ?? 'Test User' }}</strong>
-                                </div>
-                            </li>
+                        <ul class="dropdown-menu dropdown-menu-end border border-light shadow-sm mt-2" aria-labelledby="settingDropdown">
                             <li>
-                                <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-secondary" href="{{ url('/dashboard') }}" style="border-radius: 8px;">
-                                    <i class="fas fa-desktop text-muted" style="width: 16px;"></i>
-                                    <span>Bàn làm việc</span>
+                                <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ request()->routeIs('role.index') ? 'active' : 'text-dark' }}" href="{{ route('role.index') }}">
+                                    <span>{{ __('Role') }}</span>
                                 </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-secondary"
-                                   href="{{ route('profile.edit') }}" style="border-radius: 8px;">
-                                    <i class="fas fa-user-cog text-muted" style="width: 16px;"></i>
-                                    <span>Hồ sơ cá nhân</span>
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider bg-light"></li>
-                            <li>
-                                <form method="POST" action="{{ route('logout') }}" class="m-0">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger" style="border-radius: 8px;">
-                                        <i class="fas fa-sign-out-alt" style="width: 16px;"></i>
-                                        <span>{{ __('Logout') }}</span>
-                                    </button>
-                                </form>
                             </li>
                         </ul>
+                    </li>
+                </ul>
+                @auth()
+                    <div class="d-flex align-items-center border-top border-light pt-3 pt-lg-0 mt-3 mt-lg-0">
+                        <div class="dropdown">
+                            <a class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark border-0 px-3 py-1 rounded-2 bg-light-hover" href="#" id="userNavbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="far fa-user-circle fs-5 me-2 text-secondary"></i>
+
+                                <div class="d-inline-flex flex-column text-start me-1">
+                                    <span class="small lh-base">{{ Auth::user()->name }}</span>
+                                </div>
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-end border border-light shadow-sm mt-2 animate slideIn" aria-labelledby="userNavbarDropdown" style="border-radius: 12px; padding: 6px; min-width: 210px;">
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-secondary" href="{{ url('/dashboard') }}" style="border-radius: 8px;">
+                                        <i class="fas fa-desktop text-muted" style="width: 16px;"></i>
+                                        <span>Bàn làm việc</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-secondary"
+                                       href="{{ route('profile.edit') }}" style="border-radius: 8px;">
+                                        <i class="fas fa-user-cog text-muted" style="width: 16px;"></i>
+                                        <span>Hồ sơ cá nhân</span>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider bg-light"></li>
+                                <li>
+                                    <form method="POST" action="{{ route('logout') }}" class="m-0">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger" style="border-radius: 8px;">
+                                            <i class="fas fa-sign-out-alt" style="width: 16px;"></i>
+                                            <span>{{ __('Logout') }}</span>
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
+                @endauth
             </div>
         </div>
     </nav>
@@ -201,7 +209,41 @@
     </footer>
 @endauth
 
+<script src="{{ asset('/js/library/jquery.min.js') }}"></script>
 <script src="{{ asset('/js/library/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('/js/library/dataTables.min.js') }}"></script>
+<script src="{{ asset('/js/library/dataTables.bootstrap5.min.js') }}"></script>
+
+<script>
+    window.appLocale = "{{ app()->getLocale() }}";
+    $(document).on("keydown", "form", function(event) {
+        if (event.key === 'Enter') {
+            if (event.target.tagName !== 'TEXTAREA') {
+                event.preventDefault();
+                return false;
+            }
+        }
+    });
+
+    // config datatable
+    const currentLocale = "{{ app()->getLocale() }}";
+    const languageUrl = currentLocale === 'vi'
+        ? "{{ asset('/library/json/vi.json') }}"
+        : "";
+
+    window.DataTableConfig = {
+        lengthMenu: [
+            {!! Illuminate\Support\Js::from(config('define.datatable.length_menu', [10, 25, 50, 100, 500, -1])) !!},
+            [10, 25, 50, 100, 500, "{{ __('All') }}"]
+        ],
+        pageLength: {{ config('define.datatable.default_page_length', 10) }},
+        language: {
+            url: languageUrl,
+            lengthMenu: "_MENU_ {{ __('record on page') }}",
+        }
+    };
+</script>
+
 @yield('scripts')
 </body>
 </html>
