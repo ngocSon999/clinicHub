@@ -79,6 +79,40 @@
         .custom-dropdown .dropdown-item:hover .text-muted {
             color: #ffffff !important;
         }
+        /* Custom css cho thông báo có thanh chạy đếm ngược */
+        .global-alert {
+            position: relative;
+            overflow: hidden; /* Để thanh chạy không bị tràn góc bo tròn */
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+            transition: opacity 0.4s ease, transform 0.4s ease, margin 0.4s ease, max-height 0.4s ease;
+        }
+
+        .global-alert::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 100%;
+            animation: alert-progress 5s linear forwards;
+        }
+
+        .alert-success::after {
+            background-color: #198754;
+        }
+        .alert-danger::after {
+            background-color: #dc3545;
+        }
+
+        @keyframes alert-progress {
+            from {
+                width: 100%;
+            }
+            to {
+                width: 0;
+            }
+        }
     </style>
     @yield('styles')
 </head>
@@ -204,6 +238,7 @@
 @endauth
 
 <main class="py-4">
+    @include('layouts.message')
     @yield('content')
 </main>
 
@@ -221,6 +256,36 @@
         </div>
     </footer>
 @endauth
+
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+        <div class="modal-content border-0 shadow" style="border-radius: 12px;">
+            <div class="modal-body p-4 text-center">
+                <div class="text-danger mb-3">
+                    <i class="fas fa-exclamation-circle fa-3x"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">Xác nhận xóa?</h5>
+                <p class="text-secondary small mb-4">
+                    Bạn có chắc chắn muốn xóa dữ liệu <strong id="delete-item-name" class="text-dark"></strong>? <br>
+                    Hành động này không thể hoàn tác.
+                </p>
+
+                {{-- Form này không fix cứng action nữa, JS sẽ điền động --}}
+                <form id="global-delete-form" method="POST" action="">
+                    @csrf
+                    @method('DELETE')
+
+                    <div class="d-flex justify-content-center gap-2">
+                        <button type="button" class="btn btn-light border px-4 rounded-3" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-danger px-4 rounded-3">
+                            <i class="fas fa-trash-alt me-1"></i> Đồng ý xóa
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="{{ asset('/js/library/jquery.min.js') }}"></script>
 <script src="{{ asset('/js/library/bootstrap.bundle.min.js') }}"></script>
@@ -255,6 +320,47 @@
             lengthMenu: "_MENU_ {{ __('record on page') }}",
         }
     };
+
+    $(document).ready(function() {
+        $(document).on('click', '.btn-delete-trigger', function() {
+            const deleteUrl = $(this).data('url');
+            const itemName = $(this).data('name');
+
+            $('#global-delete-form').attr('action', deleteUrl);
+            $('#delete-item-name').text(itemName || 'mục này');
+
+            $('#deleteConfirmModal').modal('show');
+        });
+
+        setTimeout(function() {
+            $(".global-alert").each(function() {
+                const $alert = $(this);
+
+                $alert.css({
+                    'max-height': $alert.outerHeight() + 'px',
+                    'transform': 'translateY(0)',
+                    'opacity': '1'
+                });
+
+                setTimeout(function() {
+                    $alert.css({
+                        'opacity': '0',
+                        'transform': 'translateY(-10px)',
+                        'max-height': '0',
+                        'padding-top': '0',
+                        'padding-bottom': '0',
+                        'margin-top': '0',
+                        'margin-bottom': '0',
+                        'border': 'none'
+                    });
+                }, 50);
+
+                setTimeout(function() {
+                    $alert.remove();
+                }, 450);
+            });
+        }, 5000);
+    });
 </script>
 
 @yield('scripts')

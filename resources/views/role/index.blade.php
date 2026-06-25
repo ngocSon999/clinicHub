@@ -1,10 +1,16 @@
 @extends('layouts.master')
 
 @section('title', 'Quản Lý Vai Trò - ClinicHub')
-
+@section('styles')
+    <style>
+        div.table-responsive > div.dt-container > div.row {
+            --bs-gutter-x: 0;
+        }
+    </style>
+@endsection
 @section('content')
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 px-4">
             <div>
                 <h5 class="mb-1 fw-bold text-dark">Quản Lý Vai Trò (Roles)</h5>
                 <nav aria-label="breadcrumb">
@@ -19,22 +25,20 @@
             </a>
         </div>
 
-        <div class="row">
-            <div class="col-12">
-                <div class="table-responsive p-4 bg-white rounded-3 shadow-sm border">
-                    <table id="roleTable" class="table table-hover align-middle mb-0" style="width:100%">
-                        <thead class="table-light">
-                        <tr>
-                            <th class="text-center" style="width: 5%">#</th>
-                            <th style="width: 15%">{{ __('Role Name') }}</th>
-                            <th style="width: 30%">{{ __('Permissions') }}</th>
-                            <th style="width: 10%" class="text-center">{{ __('Created At') }}</th>
-                            <th style="width: 15%" class="text-center">{{ __('Actions') }}</th>
-                        </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+        <div class="card border-0 shadow-sm">
+            <div class="table-responsive p-4 bg-white rounded-3 shadow-sm border">
+                <table id="roleTable" class="table table-hover align-middle mb-0" style="width:100%">
+                    <thead class="table-light">
+                    <tr>
+                        <th class="text-center" style="width: 5%">#</th>
+                        <th style="width: 15%">{{ __('Role Name') }}</th>
+                        <th style="width: 30%">{{ __('Permissions') }}</th>
+                        <th style="width: 10%" class="text-center">{{ __('Created At') }}</th>
+                        <th style="width: 15%" class="text-center">{{ __('Actions') }}</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -101,17 +105,26 @@
                         searchable: false,
                         className: 'text-center',
                         render: function(data, type, row) {
-                            let editUrl = `{{ route('role.index') }}/${row.id}/edit`;
+                            let editUrlTemplate = `{{ route('role.edit', ['role' => 'PLACEHOLDER_ID']) }}`;
+                            let editUrl = editUrlTemplate.replace('PLACEHOLDER_ID', row.id);
+
+                            let deleteUrlTemplate = `{{ route('role.destroy', ['role' => 'PLACEHOLDER_ID']) }}`;
+                            let deleteUrl = deleteUrlTemplate.replace('PLACEHOLDER_ID', row.id);
+
                             return `
-                                <div class="btn-group shadow-sm">
-                                    <a href="${editUrl}" class="btn btn-sm btn-outline-light text-dark border border-light-subtle" title="Sửa">
-                                        <i class="fa fa-edit text-primary"></i>
-                                    </a>
-                                    <button type="button" data-id="${row.id}" class="btn btn-sm btn-outline-light text-dark border border-light-subtle btn-delete" title="Xóa">
-                                        <i class="fa fa-trash text-danger"></i>
-                                    </button>
-                                </div>
-                            `;
+                                    <div class="btn-group shadow-sm">
+                                        <a href="${editUrl}" class="btn btn-sm btn-outline-light text-dark border border-light-subtle" title="Sửa">
+                                            <i class="fa fa-edit text-primary"></i>
+                                        </a>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-light text-dark border border-light-subtle btn-delete-trigger"
+                                                data-url="${deleteUrl}"
+                                                data-name="${row.name}"
+                                                title="Xóa">
+                                            <i class="fa fa-trash text-danger"></i>
+                                        </button>
+                                    </div>
+                                `;
                         }
                     }
                 ],

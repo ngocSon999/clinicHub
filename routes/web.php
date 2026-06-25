@@ -21,9 +21,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::prefix('role')->group(function () {
+        Route::get('', [RoleController::class, 'index'])->name('role.index');
         Route::get('/list', [RoleController::class, 'getList'])->name('role.list');
         Route::get('/create', [RoleController::class, 'create'])->name('role.create');
-        Route::get('/', [RoleController::class, 'index'])->name('role.index');
+        Route::post('/store', [RoleController::class, 'store'])->name('role.store');
+        Route::get('/{role}/edit', [RoleController::class, 'edit'])->name('role.edit');
+        Route::put('/{role}/update', [RoleController::class, 'update'])->name('role.update');
+        Route::delete('/{role}/delete', [RoleController::class, 'destroy'])->name('role.destroy');
     });
 });
 
