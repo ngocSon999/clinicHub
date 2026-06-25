@@ -71,6 +71,14 @@
                 right: auto !important;
             }
         }
+        .custom-dropdown .dropdown-item:hover {
+            background-color: #0d6efd !important;
+            color: #ffffff !important;
+        }
+
+        .custom-dropdown .dropdown-item:hover .text-muted {
+            color: #ffffff !important;
+        }
     </style>
     @yield('styles')
 </head>
@@ -91,7 +99,7 @@
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 gap-1">
                     <li class="nav-item">
-                        <a class="nav-link px-3 rounded-2 fw-medium {{ request()->routeIs('dashboard') ? 'active bg-light text-primary fw-semibold' : 'text-secondary' }}" href="{{ route('dashboard') }}">
+                        <a class="nav-link px-3 rounded-2 fw-medium {{ request()->routeIs('dashboard') ? 'active bg-light text-primary' : 'text-secondary' }}" href="{{ route('dashboard') }}">
                             <i class="fas fa-chart-pie me-1.5 small"></i>Tổng quan
                         </a>
                     </li>
@@ -153,22 +161,27 @@
                                 <i class="far fa-user-circle fs-5 me-2 text-secondary"></i>
 
                                 <div class="d-inline-flex flex-column text-start me-1">
-                                    <span class="small lh-base">{{ Auth::user()->name }}</span>
+                                    <span class="small lh-base">{{ Auth::user()->name ?? 'Test User' }}</span>
                                 </div>
                             </a>
 
-                            <ul class="dropdown-menu dropdown-menu-end border border-light shadow-sm mt-2 animate slideIn" aria-labelledby="userNavbarDropdown" style="border-radius: 12px; padding: 6px; min-width: 210px;">
+                            <ul class="dropdown-menu dropdown-menu-end custom-dropdown border border-light shadow-sm mt-2 animate slideIn" aria-labelledby="userNavbarDropdown" style="border-radius: 12px; padding: 6px; min-width: 210px;">
+                                <li class="px-3 py-2.5 border-bottom border-light mb-1 d-sm-none bg-light rounded-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="far fa-user-circle text-secondary fs-5"></i>
+                                        <strong class="text-dark small">{{ Auth::user()->name ?? 'Test User' }}</strong>
+                                    </div>
+                                </li>
                                 <li>
                                     <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-secondary" href="{{ url('/dashboard') }}" style="border-radius: 8px;">
                                         <i class="fas fa-desktop text-muted" style="width: 16px;"></i>
-                                        <span>Bàn làm việc</span>
+                                        <span>{{ __('Desk') }}</span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-secondary"
-                                       href="{{ route('profile.edit') }}" style="border-radius: 8px;">
+                                    <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-secondary" href="{{ route('profile.edit') }}" style="border-radius: 8px;">
                                         <i class="fas fa-user-cog text-muted" style="width: 16px;"></i>
-                                        <span>Hồ sơ cá nhân</span>
+                                        <span>{{ __('Personal Profile') }}</span>
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider bg-light"></li>
