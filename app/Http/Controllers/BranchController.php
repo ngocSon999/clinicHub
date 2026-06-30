@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BranchRequest;
 use App\Models\Branch;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -107,48 +108,14 @@ class BranchController extends Controller
         return response()->json(array_values($filteredCommunes));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(BranchRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:branches,code',
-            'phone' => 'nullable|string|max:20',
-            'province_id' => 'nullable|string',
-            'commune_id' => 'nullable|string',
-            'address_detail' => 'nullable|string|max:255',
-            'status' => 'required|in:0,1',
-        ], [
-            'name.required' => 'Vui lòng nhập tên chi nhánh.',
-            'code.required' => 'Vui lòng nhập mã chi nhánh.',
-            'code.unique'   => 'Mã chi nhánh này đã tồn tại trên hệ thống.',
-        ]);
+        $validated = $request->validated();
 
         DB::beginTransaction();
         try {
             $validated['code'] = strtoupper($validated['code']);
-
-            $provinceName = '';
-            $communeName = '';
-
-            if ($request->filled('province_id') || $request->filled('commune_id')) {
-                $jsonPath = storage_path('app/json/address.json');
-                if (File::exists($jsonPath)) {
-                    $addressData = json_decode(File::get($jsonPath), true);
-
-                    if ($request->filled('province_id')) {
-                        $province = collect($addressData['province'])->firstWhere('idProvince', $request->province_id);
-                        $provinceName = $province['name'] ?? '';
-                    }
-
-                    if ($request->filled('commune_id')) {
-                        $commune = collect($addressData['commune'])->firstWhere('idCommune', $request->commune_id);
-                        $communeName = $commune['name'] ?? '';
-                    }
-                }
-            }
-
-            $addressParts = array_filter([$request->address_detail, $communeName, $provinceName]);
-            $validated['full_address'] = implode(', ', $addressParts);
+            $validated['full_address'] = $this->getFullAddress($request);
 
             Branch::create($validated);
 
@@ -178,48 +145,41 @@ class BranchController extends Controller
         return view('branch.edit', compact('branch', 'provinces'));
     }
 
-    public function update(Request $request, Branch $branch): RedirectResponse
+    protected function getFullAddress(BranchRequest $request): string
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:branches,code,' . $branch->id,
-            'phone' => 'nullable|string|max:20',
-            'province_id' => 'nullable|string',
-            'commune_id' => 'nullable|string',
-            'address_detail' => 'nullable|string|max:255',
-            'status' => 'required|in:0,1',
-        ], [
-            'name.required' => 'Vui lòng nhập tên chi nhánh.',
-            'code.required' => 'Vui lòng nhập mã chi nhánh.',
-            'code.unique'   => 'Mã chi nhánh này đã tồn tại trên hệ thống.',
-        ]);
+        $provinceName = '';
+        $communeName = '';
+
+        if ($request->filled('province_id') || $request->filled('commune_id')) {
+            $jsonPath = storage_path('app/json/address.json');
+            if (File::exists($jsonPath)) {
+                $addressData = json_decode(File::get($jsonPath), true);
+
+                if ($request->filled('province_id')) {
+                    $province = collect($addressData['province'])->firstWhere('idProvince', $request->province_id);
+                    $provinceName = $province['name'] ?? '';
+                }
+
+                if ($request->filled('commune_id')) {
+                    $commune = collect($addressData['commune'])->firstWhere('idCommune', $request->commune_id);
+                    $communeName = $commune['name'] ?? '';
+                }
+            }
+        }
+
+        $addressParts = array_filter([$request->address_detail, $communeName, $provinceName]);
+
+        return implode(', ', $addressParts);
+    }
+
+    public function update(BranchRequest $request, Branch $branch): RedirectResponse
+    {
+        $validated = $request->validated();
 
         DB::beginTransaction();
         try {
             $validated['code'] = strtoupper($validated['code']);
-
-            $provinceName = '';
-            $communeName = '';
-
-            if ($request->filled('province_id') || $request->filled('commune_id')) {
-                $jsonPath = storage_path('app/json/address.json');
-                if (File::exists($jsonPath)) {
-                    $addressData = json_decode(File::get($jsonPath), true);
-
-                    if ($request->filled('province_id')) {
-                        $province = collect($addressData['province'])->firstWhere('idProvince', $request->province_id);
-                        $provinceName = $province['name'] ?? '';
-                    }
-
-                    if ($request->filled('commune_id')) {
-                        $commune = collect($addressData['commune'])->firstWhere('idCommune', $request->commune_id);
-                        $communeName = $commune['name'] ?? '';
-                    }
-                }
-            }
-
-            $addressParts = array_filter([$request->address_detail, $communeName, $provinceName]);
-            $validated['full_address'] = implode(', ', $addressParts);
+            $validated['full_address'] = $this->getFullAddress($request);
 
             $branch->update($validated);
 
