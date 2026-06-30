@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet"/>
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
@@ -112,6 +113,64 @@
             to {
                 width: 0;
             }
+        }
+
+        .select2-container--bootstrap-5 .select2-results__option--selected {
+            background-color: #e0e7ff !important;
+            color: #4338ca !important;
+            font-weight: 600 !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-results__option--selected::before {
+            content: "✓ ";
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .select2-container--bootstrap-5 .select2-selection {
+            border: 1px solid #dee2e6 !important;
+            border-radius: 10px !important;
+            padding: 6px 10px !important;
+            min-height: 48px !important;
+            display: flex;
+            align-items: center;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice {
+            background-color: #e0e7ff !important;
+            border: 1px solid #c7d2fe !important;
+            color: #4338ca !important;
+            font-size: 0.85rem !important;
+            padding: 4px 12px !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            margin-top: 4px !important;
+        }
+
+        /* Nút xóa thẻ X */
+        .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice__remove {
+            display: none;
+        }
+        .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice__remove:hover {
+            opacity: 1;
+            background-color: transparent !important;
+        }
+
+        .form-label {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151 !important;
+        }
+        .select2-container--bootstrap-5 .select2-selection--multiple .select2-search.select2-search--inline {
+            display: inline-flex !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--multiple .select2-search__field {
+            margin: 0 1px !important;
+            padding: 0 !important;
+            line-height: normal !important;
+            height: auto !important;
         }
     </style>
     @yield('styles')
@@ -319,6 +378,8 @@
 <script src="{{ asset('/js/library/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('/js/library/dataTables.min.js') }}"></script>
 <script src="{{ asset('/js/library/dataTables.bootstrap5.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js">
+</script>
 
 <script>
     window.appLocale = "{{ app()->getLocale() }}";

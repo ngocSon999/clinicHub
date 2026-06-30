@@ -4,6 +4,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -39,6 +40,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/{branch}/edit', [BranchController::class, 'edit'])->name('branch.edit');
         Route::put('/{branch}/update', [BranchController::class, 'update'])->name('branch.update');
         Route::delete('/{branch}/delete', [BranchController::class, 'destroy'])->name('branch.destroy');
+    });
+
+    Route::prefix('user')->middleware(['auth'])->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('user.index');
+        Route::get('/create', [UserController::class, 'create'])->name('user.create');
+        Route::get('/list', [UserController::class, 'getList'])->name('user.list');
+        Route::post('/store', [UserController::class, 'store'])->name('user.store');
+        Route::get('/{user}/edit', [UserController::class, 'edit'])->name('user.edit');
+        Route::put('/{user}/update', [UserController::class, 'update'])->name('user.update');
+        Route::delete('/{user}/delete', [UserController::class, 'destroy'])->name('user.destroy');
     });
 
     Route::get('/get-communes', [BranchController::class, 'getCommunes'])->name('branches.get-communes');

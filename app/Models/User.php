@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -47,5 +48,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function allRoles(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Role::class,
+            'user_roles', // Tên bảng pivot cấu hình trong file của bạn
+            'model_id',
+            'role_id'
+        )->wherePivot('model_type', static::class); // Ép điều kiện đa hình
     }
 }
