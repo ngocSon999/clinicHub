@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
+use App\Mail\NewUserPasswordMail;
 use App\Models\Role;
 use App\Models\User;
 use Exception;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class UserController extends Controller
@@ -135,7 +137,7 @@ class UserController extends Controller
             event(new Registered($user));
 
             if ($isRandomPassword) {
-                // Mail::to($user->email)->send(new \App\Mail\NewUserPasswordMail($user, $plainPassword));
+                Mail::to($user->email)->send(new NewUserPasswordMail($user, $plainPassword));
             }
 
             DB::commit();
@@ -226,9 +228,9 @@ class UserController extends Controller
      */
     public function destroy(string $id): JsonResponse
     {
-        if (!auth()->user()->can('delete-users')) {
-            return response()->json(['success' => false, 'message' => 'Bạn không có quyền thực hiện thao tác này!'], 403);
-        }
+//        if (!auth()->user()->can('delete-users')) {
+//            return response()->json(['success' => false, 'message' => 'Bạn không có quyền thực hiện thao tác này!'], 403);
+//        }
 
         try {
             DB::transaction(function () use ($id) {
