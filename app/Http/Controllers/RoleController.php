@@ -45,6 +45,22 @@ class RoleController extends Controller
             });
         }
 
+        if ($request->has('order')) {
+            $columnIndex = $request->input('order.0.column');
+            $columnDirection = $request->input('order.0.dir', 'asc');
+            $columnName = $request->input("columns.{$columnIndex}.data");
+
+            $allowableColumns = ['id', 'team_id', 'name', 'created_at'];
+
+            if (!empty($columnName) && in_array($columnName, $allowableColumns)) {
+                $query->orderBy($columnName, $columnDirection);
+            } else {
+                $query->orderBy('id', 'desc');
+            }
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+
         $roles = $query->paginate($perPage);
 
         return response()->json([
@@ -164,11 +180,28 @@ class RoleController extends Controller
         }
     }
 
-    public function destroy(Role $role): RedirectResponse
+    public function destroy(Role $role): JsonResponse
     {
-        if ($role->team_id !== Auth::user()->team_id) {
-            return redirect()->route('role.index')
-                ->with('error', 'Bạn không có quyền xóa vai trò của chi nhánh khác!');
+        $currentUser = Auth::user();
+
+        $hasAccessToTeam = DB::table('user_roles')
+            ->where('model_id', $currentUser->id)
+            ->where('model_type', get_class($currentUser))
+            ->where('team_id', $role->team_id)
+            ->exists();
+
+        if (!$hasAccessToTeam) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền xóa vai trò của chi nhánh khác!'
+            ], 403);
+        }
+
+        if ($role->users()->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể xóa! Vai trò này đang được gán cho nhân viên trong hệ thống.'
+            ], 422);
         }
 
         DB::beginTransaction();
@@ -176,16 +209,20 @@ class RoleController extends Controller
         try {
             $role->syncPermissions([]);
             $role->delete();
+
             DB::commit();
 
-            return redirect()->route('role.index')
-                ->with('success', 'Xóa vai trò thành công!');
-
+            return response()->json([
+                'success' => true,
+                'message' => 'Xóa vai trò thành công!'
+            ]);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return redirect()->route('role.index')
-                ->with('error', 'Không thể xóa vai trò này: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể xóa vai trò này: ' . $e->getMessage()
+            ], 500);
         }
     }
 }
