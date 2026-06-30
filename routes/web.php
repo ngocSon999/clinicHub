@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
@@ -29,6 +30,18 @@ Route::middleware('auth')->group(function () {
         Route::put('/{role}/update', [RoleController::class, 'update'])->name('role.update');
         Route::delete('/{role}/delete', [RoleController::class, 'destroy'])->name('role.destroy');
     });
+
+    Route::prefix('branches')->middleware(['auth'])->group(function () {
+        Route::get('/', [BranchController::class, 'index'])->name('branch.index');
+        Route::get('/create', [BranchController::class, 'create'])->name('branch.create');
+        Route::get('/list', [BranchController::class, 'getList'])->name('branch.list');
+        Route::post('/store', [BranchController::class, 'store'])->name('branch.store');
+        Route::get('/{branch}/edit', [BranchController::class, 'edit'])->name('branch.edit');
+        Route::put('/{branch}/update', [BranchController::class, 'update'])->name('branch.update');
+        Route::delete('/{branch}/delete', [BranchController::class, 'destroy'])->name('branch.destroy');
+    });
+
+    Route::get('/get-communes', [BranchController::class, 'getCommunes'])->name('branches.get-communes');
 });
 
 require __DIR__.'/auth.php';

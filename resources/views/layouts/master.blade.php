@@ -185,6 +185,11 @@
                                     <span>{{ __('Role') }}</span>
                                 </a>
                             </li>
+                            <li>
+                                <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ request()->routeIs('branch.index') ? 'active' : 'text-dark' }}" href="{{ route('branch.index') }}">
+                                    <span>{{ __('Branch') }}</span>
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 </ul>
@@ -270,7 +275,6 @@
                     Hành động này không thể hoàn tác.
                 </p>
 
-                {{-- Form này không fix cứng action nữa, JS sẽ điền động --}}
                 <form id="global-delete-form" method="POST" action="">
                     @csrf
                     @method('DELETE')
@@ -282,6 +286,30 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="globalErrorModal" tabindex="-1" aria-labelledby="globalErrorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 450px;">
+        <div class="modal-content border-0 shadow" style="border-radius: 16px;">
+            <div class="modal-body text-center p-4">
+                <div class="d-inline-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-circle mb-3" style="width: 64px; height: 64px;">
+                    <i class="fas fa-exclamation-triangle fs-3"></i>
+                </div>
+
+                <h5 class="modal-title fw-bold text-dark mb-2" id="globalErrorModalLabel">Không Thể Thực Hiện!</h5>
+
+                <p class="text-secondary small mb-4 px-2" id="global-error-message">
+                    Đã xảy ra lỗi không xác định, vui lòng liên hệ quản trị viên.
+                </p>
+
+                <div class="d-grid">
+                    <button type="button" class="btn btn-light border fw-semibold py-2.5" style="border-radius: 10px;" data-bs-dismiss="modal">
+                        Đóng thông báo
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -332,16 +360,54 @@
             $('#deleteConfirmModal').modal('show');
         });
 
+        $('#global-delete-form').on('submit', function(e) {
+            e.preventDefault();
+
+            const form = $(this);
+            const actionUrl = form.attr('action');
+
+            $.ajax({
+                url: actionUrl,
+                type: 'POST',
+                data: form.serialize(),
+                success: function(response) {
+                    $('#deleteConfirmModal').modal('hide');
+
+                    if (response.success) {
+                        if ($.fn.DataTable.isDataTable('#branchTable')) {
+                            $('#branchTable').DataTable().ajax.reload();
+                        } else if ($.fn.DataTable.isDataTable('#roleTable')) {
+                            $('#roleTable').DataTable().ajax.reload();
+                        } else {
+                            location.reload();
+                        }
+                    } else {
+                        $('#global-error-message').text(response.message);
+                        $('#globalErrorModal').modal('show');
+                    }
+                },
+                error: function(xhr) {
+                    $('#deleteConfirmModal').modal('hide');
+
+                    let errorMessage = 'Đã xảy ra lỗi hệ thống! Vui lòng thử lại sau.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+
+                    $('#global-error-message').text(errorMessage);
+                    $('#globalErrorModal').modal('show');
+                }
+            });
+        });
+
         setTimeout(function() {
             $(".global-alert").each(function() {
                 const $alert = $(this);
-
                 $alert.css({
                     'max-height': $alert.outerHeight() + 'px',
                     'transform': 'translateY(0)',
                     'opacity': '1'
                 });
-
                 setTimeout(function() {
                     $alert.css({
                         'opacity': '0',
@@ -354,7 +420,6 @@
                         'border': 'none'
                     });
                 }, 50);
-
                 setTimeout(function() {
                     $alert.remove();
                 }, 450);
