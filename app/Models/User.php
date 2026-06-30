@@ -54,9 +54,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(
             Role::class,
-            'user_roles', // Tên bảng pivot cấu hình trong file của bạn
+            'user_roles',
             'model_id',
             'role_id'
-        )->wherePivot('model_type', static::class); // Ép điều kiện đa hình
+        )->wherePivot('model_type', static::class);
     }
 }

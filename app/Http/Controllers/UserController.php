@@ -191,9 +191,11 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id): Factory|View
     {
-        //
+        $user = User::with('allRoles.team')->findOrFail($id);
+
+        return view('user.show', compact('user'));
     }
 
     /**

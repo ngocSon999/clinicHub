@@ -529,5 +529,9 @@
     "A new verification link has been sent to the email address you provided during registration.": "Một liên kết xác thực mới đã được gửi đến địa chỉ email bạn đã cung cấp khi đăng ký.",
     "Resend Verification Email": "Gửi lại email xác minh",
     "Log Out": "Đăng xuất",
-    "Verify Your Email": "Xác minh email của bạn"
+    "Verify Your Email": "Xác minh email của bạn",
+    "Manage Accounts": "Quản lý tài khoản",
+    "Manage Roles": "Quản lý vai trò",
+    "Manage Branches": "Quản lý chi nhánh",
+    "Setting": "Cài đặt"
 }

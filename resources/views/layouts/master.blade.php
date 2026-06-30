@@ -240,13 +240,18 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end border border-light shadow-sm mt-2" aria-labelledby="settingDropdown">
                             <li>
-                                <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ request()->routeIs('role.index') ? 'active' : 'text-dark' }}" href="{{ route('role.index') }}">
-                                    <span>{{ __('Role') }}</span>
+                                <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ request()->routeIs('user.*') ? 'active' : 'text-dark' }}" href="{{ route('user.index') }}">
+                                    <span>{{ __('Manage Accounts') }}</span>
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ request()->routeIs('branch.index') ? 'active' : 'text-dark' }}" href="{{ route('branch.index') }}">
-                                    <span>{{ __('Branch') }}</span>
+                                <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ request()->routeIs('role.*') ? 'active' : 'text-dark' }}" href="{{ route('role.index') }}">
+                                    <span>{{ __('Manage Roles') }}</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ request()->routeIs('branch.*') ? 'active' : 'text-dark' }}" href="{{ route('branch.index') }}">
+                                    <span>{{ __('Manage Branches') }}</span>
                                 </a>
                             </li>
                         </ul>

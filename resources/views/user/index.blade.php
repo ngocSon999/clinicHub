@@ -113,26 +113,28 @@
                         searchable: false,
                         className: 'text-center',
                         render: function(data, type, row) {
-                            let editUrlTemplate = `{{ route('user.edit', ['user' => 'PLACEHOLDER_ID']) }}`;
-                            let editUrl = editUrlTemplate.replace('PLACEHOLDER_ID', row.id);
-
-                            let deleteUrlTemplate = `{{ route('user.destroy', ['user' => 'PLACEHOLDER_ID']) }}`;
-                            let deleteUrl = deleteUrlTemplate.replace('PLACEHOLDER_ID', row.id);
+                            // Tạo các URL từ Blade template
+                            let showUrl = `{{ route('user.show', ['user' => 'PLACEHOLDER_ID']) }}`.replace('PLACEHOLDER_ID', row.id);
+                            let editUrl = `{{ route('user.edit', ['user' => 'PLACEHOLDER_ID']) }}`.replace('PLACEHOLDER_ID', row.id);
+                            let deleteUrl = `{{ route('user.destroy', ['user' => 'PLACEHOLDER_ID']) }}`.replace('PLACEHOLDER_ID', row.id);
 
                             return `
-                                    <div class="btn-group shadow-sm">
-                                        <a href="${editUrl}" class="btn btn-sm btn-outline-light text-dark border border-light-subtle" title="Sửa">
-                                            <i class="fa fa-edit text-primary"></i>
-                                        </a>
-                                        <button type="button"
-                                                class="btn btn-sm btn-outline-light text-dark border border-light-subtle btn-delete-trigger"
-                                                data-url="${deleteUrl}"
-                                                data-name="${row.name}"
-                                                title="Xóa">
-                                            <i class="fa fa-trash text-danger"></i>
-                                        </button>
-                                    </div>
-                                `;
+                                <div class="btn-group shadow-sm">
+                                    <a href="${showUrl}" class="btn btn-sm btn-outline-light text-dark border border-light-subtle" title="Xem chi tiết">
+                                        <i class="fa fa-eye text-info"></i>
+                                    </a>
+                                    <a href="${editUrl}" class="btn btn-sm btn-outline-light text-dark border border-light-subtle" title="Sửa">
+                                        <i class="fa fa-edit text-primary"></i>
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-light text-dark border border-light-subtle btn-delete-trigger"
+                                            data-url="${deleteUrl}"
+                                            data-name="${row.name}"
+                                            title="Xóa">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </button>
+                                </div>
+                            `;
                         }
                     }
                 ],
