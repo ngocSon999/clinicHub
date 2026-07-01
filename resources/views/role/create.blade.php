@@ -26,9 +26,22 @@
                     @csrf
 
                     <div class="mb-4">
-                        <label for="name" class="form-label text-dark fw-semibold">Tên Vai Trò</label>
+                        <label for="name" class="form-label text-dark">Tên Vai Trò <span class="text-danger">*</span></label>
                         <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" placeholder="Ví dụ: admin, doctor, receptionist..." required>
                         @error('name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="name" class="form-label text-dark">Chi nhánh <span class="text-danger">*</span></label>
+                        <select name="branch_id" id="" class="form-control @error('branch_id') is-invalid @enderror" required>
+                            <option value="">--- Chọn chi nhánh ---</option>
+                            @foreach($branches as $branch)
+                                <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('branch_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>

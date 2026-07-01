@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -30,6 +31,7 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
+            'branch_id' => ['nullable', 'exists:branches,id'],
         ];
     }
 
@@ -51,6 +53,15 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        /** @var User $user */
+        $user = Auth::user();
+        if (!$user->hasRole('super_admin') && !$this->input('branch_id')) {
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'branch_id' => 'Vui lòng chọn chi nhánh làm việc!',
+            ]);
+        }
     }
 
     /**

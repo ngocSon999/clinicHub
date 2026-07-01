@@ -71,7 +71,7 @@
                     {
                         data: null,
                         render: function(data, type, row) {
-                            let teamInfo = row.team_id ? ` (Team: ${row.team_id})` : '';
+                            let teamInfo = row.team ? ` (${row.team.name})` : '';
 
                             return `<span class="badge bg-primary-subtle text-primary px-2.5 py-1.5 fs-7 fw-semibold">${row.name}${teamInfo}</span>`;
                         }

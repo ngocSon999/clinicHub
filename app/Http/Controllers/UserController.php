@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -30,26 +31,6 @@ class UserController extends Controller
         return view('user.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): Factory|View
-    {
-        $currentUser = Auth::user();
-
-        $userTeamIds = DB::table('user_roles')
-            ->where('model_id', $currentUser->id)
-            ->where('model_type', get_class($currentUser))
-            ->pluck('team_id')
-            ->unique()
-            ->filter()
-            ->toArray();
-
-        $roles = Role::whereIn('team_id', $userTeamIds)->get();
-
-        return view('user.create', compact('roles'));
-    }
-
     public function getList(Request $request): JsonResponse
     {
         $perPage = $request->input('length', 10);
@@ -61,10 +42,10 @@ class UserController extends Controller
         $searchValue = $request->input('search.value');
 
         $query = User::with(['allRoles.team'])->select([
-            'id',
-            'name',
-            'email',
-            'created_at'
+            'users.id',
+            'users.name',
+            'users.email',
+            'users.created_at'
         ]);
 
         if (!empty($searchValue)) {
@@ -99,19 +80,51 @@ class UserController extends Controller
         ]);
     }
 
-    protected function syncUserRoles(User $user, array $roleIds): void
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(): Factory|View
     {
-        $roles = Role::whereIn('id', $roleIds)->get();
+        $roles = $this->getAvailableRoles();
 
-        $groupedRoles = $roles->groupBy('team_id');
+        return view('user.create', compact('roles'));
+    }
 
-        foreach ($groupedRoles as $teamId => $rolesInTeam) {
-            $roleNames = $rolesInTeam->pluck('name')->toArray();
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(User $user): Factory|View
+    {
+        $roles = $this->getAvailableRoles();
 
-            setPermissionsTeamId($teamId);
+        $assignedRoleIds = DB::table('user_roles')
+            ->where('model_id', $user->id)
+            ->where('model_type', User::class)
+            ->pluck('role_id')
+            ->toArray();
 
-            $user->syncRoles($roleNames);
+        return view('user.edit', compact('user', 'roles', 'assignedRoleIds'));
+    }
+
+    protected function getAvailableRoles(): Collection
+    {
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+
+        if ($currentUser->hasRole('super_admin')) {
+            return Role::all();
         }
+
+        $userTeamIds = DB::table('user_roles')
+            ->where('model_id', $currentUser->id)
+            ->where('model_type', get_class($currentUser))
+            ->pluck('team_id')
+            ->unique()
+            ->filter()
+            ->toArray();
+
+        return Role::whereIn('team_id', $userTeamIds)
+            ->get();
     }
 
     /**
@@ -188,6 +201,24 @@ class UserController extends Controller
         }
     }
 
+
+    protected function syncUserRoles(User $user, array $roleIds): void
+    {
+        $roles = Role::whereIn('id', $roleIds)->get();
+
+        $groupedRoles = $roles->groupBy('team_id');
+
+        foreach ($groupedRoles as $teamId => $rolesInTeam) {
+            setPermissionsTeamId($teamId);
+
+            $user->roles()
+                ->wherePivot('team_id', $teamId)
+                ->detach();
+
+            $user->assignRole($rolesInTeam);
+        }
+    }
+
     /**
      * Display the specified resource.
      */
@@ -197,33 +228,6 @@ class UserController extends Controller
 
         return view('user.show', compact('user'));
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(User $user): Factory|View
-    {
-        $currentUser = Auth::user();
-
-        $userTeamIds = DB::table('user_roles')
-            ->where('model_id', $currentUser->id)
-            ->where('model_type', get_class($currentUser))
-            ->pluck('team_id')
-            ->unique()
-            ->filter()
-            ->toArray();
-
-        $roles = Role::whereIn('team_id', $userTeamIds)->get();
-
-        $assignedRoleIds = DB::table('user_roles')
-            ->where('model_id', $user->id)
-            ->where('model_type', User::class)
-            ->pluck('role_id')
-            ->toArray();
-
-        return view('user.edit', compact('user', 'roles', 'assignedRoleIds'));
-    }
-
 
     /**
      * Remove the specified resource from storage.

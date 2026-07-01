@@ -80,10 +80,10 @@
         .custom-dropdown .dropdown-item:hover .text-muted {
             color: #ffffff !important;
         }
-        /* Custom css cho thông báo có thanh chạy đếm ngược */
+
         .global-alert {
             position: relative;
-            overflow: hidden; /* Để thanh chạy không bị tràn góc bo tròn */
+            overflow: hidden;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
             transition: opacity 0.4s ease, transform 0.4s ease, margin 0.4s ease, max-height 0.4s ease;
@@ -172,6 +172,26 @@
             line-height: normal !important;
             height: auto !important;
         }
+
+        .branch-current{
+            max-width:180px;
+        }
+        .branch-current .branch-text{
+            overflow:hidden;
+            text-overflow:ellipsis;
+            white-space:nowrap;
+            max-width:140px;
+        }
+
+        .dropdown-menu{
+            min-width:300px;
+        }
+
+        .dropdown-item.active{
+            background:#f8f9fa;
+            color:#0d6efd;
+            font-weight:600;
+        }
     </style>
     @yield('styles')
 </head>
@@ -193,22 +213,22 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 gap-1">
                     <li class="nav-item">
                         <a class="nav-link px-3 rounded-2 fw-medium {{ request()->routeIs('dashboard') ? 'active bg-light text-primary' : 'text-secondary' }}" href="{{ route('dashboard') }}">
-                            <i class="fas fa-chart-pie me-1.5 small"></i>Tổng quan
+                            Tổng quan
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link px-3 rounded-2 fw-medium text-secondary" href="#">
-                            <i class="fas fa-user-injured me-1.5 small"></i>Bệnh nhân
+                            Bệnh nhân
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link px-3 rounded-2 fw-medium text-secondary" href="#">
-                            <i class="fas fa-calendar-alt me-1.5 small"></i>Lịch hẹn
+                            Lịch hẹn
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link px-3 rounded-2 fw-medium text-secondary" href="#">
-                            <i class="fas fa-prescription me-1.5 small"></i>Đơn thuốc
+                            Đơn thuốc
                         </a>
                     </li>
 
@@ -216,46 +236,100 @@
                         $locale = App::getLocale();
                     @endphp
                     <li class="nav-item dropdown ms-lg-2">
-                        <a class="nav-link dropdown-toggle text-secondary fw-medium d-flex align-items-center gap-1 px-3" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-globe text-muted me-1.5 small"></i> {{ $locale === 'vi' ? 'Tiếng Việt' : 'English' }}
+                        <a class="nav-link dropdown-toggle px-3 text-secondary"
+                           href="#"
+                           id="langDropdown"
+                           role="button"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            <i class="fas fa-globe"></i>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end border border-light shadow-sm mt-2" aria-labelledby="langDropdown">
+
+                        <ul class="dropdown-menu dropdown-menu-end border border-light shadow-sm mt-2">
                             <li>
-                                <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ $locale === 'vi' ? 'active bg-primary text-white' : 'text-dark' }}" href="{{ route('locale', ['locale' => 'vi']) }}">
+                                <a class="dropdown-item d-flex justify-content-between align-items-center {{ $locale === 'vi' ? 'active' : '' }}"
+                                   href="{{ route('locale', ['locale' => 'vi']) }}">
                                     <span>🇻🇳 Tiếng Việt</span>
-                                    <i class="fas fa-check small ms-3"></i>
+                                    @if($locale === 'vi')
+                                        <i class="fas fa-check"></i>
+                                    @endif
                                 </a>
                             </li>
+
                             <li>
-                                <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ $locale === 'en' ? 'active bg-primary text-white' : 'text-dark' }}" href="{{ route('locale', ['locale' => 'en']) }}">
+                                <a class="dropdown-item d-flex justify-content-between align-items-center {{ $locale === 'en' ? 'active' : '' }}"
+                                   href="{{ route('locale', ['locale' => 'en']) }}">
                                     <span>🇺🇸 English</span>
-                                    <i class="fas fa-check small ms-3"></i>
+                                    @if($locale === 'en')
+                                        <i class="fas fa-check"></i>
+                                    @endif
                                 </a>
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item dropdown ms-lg-2">
-                        <a class="nav-link dropdown-toggle text-secondary fw-medium d-flex align-items-center gap-1 px-3" href="#" id="settingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa fa-cog me-1.5 small"></i> {{ __('Setting') }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end border border-light shadow-sm mt-2" aria-labelledby="settingDropdown">
-                            <li>
-                                <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ request()->routeIs('user.*') ? 'active' : 'text-dark' }}" href="{{ route('user.index') }}">
-                                    <span>{{ __('Manage Accounts') }}</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ request()->routeIs('role.*') ? 'active' : 'text-dark' }}" href="{{ route('role.index') }}">
-                                    <span>{{ __('Manage Roles') }}</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ request()->routeIs('branch.*') ? 'active' : 'text-dark' }}" href="{{ route('branch.index') }}">
-                                    <span>{{ __('Manage Branches') }}</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+                    @if($userBranches->isNotEmpty())
+                        <li class="nav-item dropdown ms-lg-2">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 branch-current"
+                               href="#"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <span class="branch-text">
+                                    {{ optional($userBranches->firstWhere('id', $currentBranchId))->name }}
+                                </span>
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                @foreach($userBranches as $branch)
+                                    <li>
+                                        <a class="dropdown-item {{ $currentBranchId == $branch->id ? 'active' : '' }}"
+                                           href="{{ route('branches.switch', ['branch_id' => $branch->id]) }}">
+
+                                            {{ $branch->name }}
+
+                                            @if($currentBranchId == $branch->id)
+                                                <i class="fas fa-check float-end"></i>
+                                            @endif
+                                        </a>
+                                    </li>
+                                @endforeach
+
+                            </ul>
+                        </li>
+                    @endif
+
+                    @canany(['role.list', 'user.list', 'branch.list'])
+                        <li class="nav-item dropdown ms-lg-2">
+                            <a class="nav-link dropdown-toggle text-secondary fw-medium d-flex align-items-center gap-1 px-3" href="#" id="settingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa fa-cog me-1.5 small"></i> {{ __('Setting') }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end border border-light shadow-sm mt-2" aria-labelledby="settingDropdown">
+                                <li>
+                                    <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ request()->routeIs('user.*') ? 'active' : 'text-dark' }}" href="{{ route('user.index') }}">
+                                        <span>{{ __('Manage Accounts') }}</span>
+                                        @if(request()->routeIs('user.*'))
+                                            <i class="fas fa-check float-end"></i>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ request()->routeIs('role.*') ? 'active' : 'text-dark' }}" href="{{ route('role.index') }}">
+                                        <span>{{ __('Manage Roles') }}</span>
+                                        @if(request()->routeIs('role.*'))
+                                            <i class="fas fa-check float-end"></i>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex justify-content-between align-items-center py-2 fw-medium {{ request()->routeIs('branch.*') ? 'active' : 'text-dark' }}" href="{{ route('branch.index') }}">
+                                        <span>{{ __('Manage Branches') }}</span>
+                                        @if(request()->routeIs('branch.*'))
+                                            <i class="fas fa-check float-end"></i>
+                                        @endif
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endcanany
                 </ul>
                 @auth()
                     <div class="d-flex align-items-center border-top border-light pt-3 pt-lg-0 mt-3 mt-lg-0">

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Branch;
 use App\Models\Permission;
 use App\Models\Role;
 use Exception;
@@ -35,7 +36,7 @@ class RoleController extends Controller
 
         $searchValue = $request->input('search.value');
 
-        $query = Role::with('permissions')
+        $query = Role::with(['permissions', 'team'])
             ->select(['id', 'team_id', 'name', 'created_at']);
 
         if (!empty($searchValue)) {
@@ -79,7 +80,9 @@ class RoleController extends Controller
             return explode('.', $permission->name)[0];
         });
 
-        return view('role.edit', compact('role', 'permissionsGrouped'));
+        $branches = Branch::all();
+
+        return view('role.edit', compact('role', 'permissionsGrouped', 'branches'));
     }
 
     public function create(): Factory|\Illuminate\Contracts\View\View
@@ -88,20 +91,22 @@ class RoleController extends Controller
             return explode('.', $permission->name)[0];
         });
 
-        return view('role.create', compact('permissionsGrouped'));
+        $branches = Branch::all();
+
+        return view('role.create', compact('permissionsGrouped', 'branches'));
     }
 
     public function store(Request $request): RedirectResponse
     {
-        $currentTeamId = Auth::user()->team_id ?? 1;
+        $teamId = $request->branch_id;
 
         $request->validate([
             'name' => [
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('roles', 'name')->where(function ($query) use ($currentTeamId) {
-                    return $query->where('team_id', $currentTeamId);
+                Rule::unique('roles', 'name')->where(function ($query) use ($teamId) {
+                    return $query->where('team_id', $teamId);
                 })
             ],
             'permissions' => 'nullable|array',
@@ -115,15 +120,20 @@ class RoleController extends Controller
         try {
             $role = Role::create([
                 'name'       => $request->input('name'),
-                'team_id'    => $currentTeamId,
+                'team_id'    => $teamId,
                 'guard_name' => 'web'
             ]);
 
             $permissions = $request->input('permissions', []);
 
             if (!empty($permissions)) {
-                $role->givePermissionTo($permissions);
+                $role->syncPermissions($permissions);
             }
+            DB::table('role_permissions')
+                ->where('role_id', $role->id)
+                ->update([
+                    'team_id' => $teamId,
+                ]);
 
             DB::commit();
 
@@ -165,6 +175,7 @@ class RoleController extends Controller
             ]);
 
             $permissions = $request->input('permissions', []);
+            setPermissionsTeamId($role->team_id);
             $role->syncPermissions($permissions);
 
             DB::commit();

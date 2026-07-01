@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Branch;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -16,17 +19,28 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
-        return view('auth.login');
+        $branches = Branch::all();
+
+        return view('auth.login', compact('branches'));
     }
 
     /**
      * Handle an incoming authentication request.
+     * @throws ValidationException
      */
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
 
         $request->session()->regenerate();
+
+        /** @var User $user */
+        $user = Auth::user();
+        if (!$user->hasRole('super_admin')) {
+            $request->session()->put('current_branch_id', $request->input('branch_id'));
+        }
+
+        session()->save();
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

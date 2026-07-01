@@ -233,4 +233,15 @@ class BranchController extends Controller
             ], 500);
         }
     }
+
+    public function switchBranch(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'branch_id' => 'required|exists:branches,id',
+        ]);
+
+        session(['current_branch_id' => $request->branch_id]);
+
+        return back()->with('success', 'Đã chuyển chi nhánh thành công!');
+    }
 }

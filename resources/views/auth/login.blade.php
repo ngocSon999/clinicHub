@@ -56,7 +56,15 @@
 
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
-
+                        <div class="mb-4">
+                            <label for="branch_id" class="form-label small fw-semibold text-secondary">Chọn chi nhánh làm việc</label>
+                            <select name="branch_id" id="branch_id" class="form-control form-control-lg fs-6">
+                                <option value="">--- Chọn chi nhánh ---</option>
+                                @foreach($branches as $branch)
+                                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="mb-3">
                             <label for="email" class="form-label small fw-semibold text-secondary">Địa chỉ Email</label>
                             <input type="email" name="email" id="email"
