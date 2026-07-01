@@ -157,9 +157,11 @@
                         Hệ thống tối ưu quy trình tiếp đón, quản lý nhân sự y tế, đồng bộ hồ sơ bệnh án điện tử nội bộ và hỗ trợ bệnh nhân kiểm tra đơn thuốc trực tuyến nhanh chóng.
                     </p>
                     <div class="d-flex justify-content-center justify-content-lg-start gap-3 flex-wrap">
-                        <a href="{{ route('login') }}" class="btn btn-primary btn-lg fw-semibold px-4 rounded-3 shadow">
-                            Cổng đăng nhập nhân viên
-                        </a>
+                        @guest
+                            <a href="{{ route('login') }}" class="btn btn-primary btn-lg fw-semibold px-4 rounded-3 shadow">
+                                Cổng đăng nhập nhân viên
+                            </a>
+                        @endguest
                         <a href="#search-patient" class="btn btn-outline-secondary btn-lg fw-semibold px-4 rounded-3">
                             Tra cứu hồ sơ bệnh nhân
                         </a>
