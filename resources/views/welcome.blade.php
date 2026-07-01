@@ -6,13 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>ClinicHub - Hệ Thống Quản Lý Phòng Khám Toàn Diện</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+    <link href="{{ asset('/css/library/bootstrap.min.css') }}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-    <link href="{{ asset('/css/library/bootstrap.min.css') }}" rel="stylesheet">
 
     <style>
         body {
@@ -88,7 +84,7 @@
             <span class="me-2">🏥</span> ClinicHub
         </a>
         <button class="navbar-toggler border-0 shadow-none px-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+            <i class="fas fa-bars fs-2 text-dark"></i>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto">
