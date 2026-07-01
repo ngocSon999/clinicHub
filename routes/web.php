@@ -13,20 +13,15 @@ Route::get('/', function () {
 
 Route::get('/greeting/{locale}', [DashboardController::class, 'setLocale'])->name('locale');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'set_team'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-});
-
-Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/get-communes', [BranchController::class, 'getCommunes'])->name('branches.get-communes');
     Route::get('/switch', [BranchController::class, 'switchBranch'])->name('branches.switch');
-});
 
-Route::middleware(['auth', 'set_team'])->group(function () {
     Route::prefix('role')->group(function () {
         Route::middleware('role_or_permission:super_admin|role.list')->group(function () {
             Route::get('', [RoleController::class, 'index'])->name('role.index');
