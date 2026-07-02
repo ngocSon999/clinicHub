@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\BranchRequest;
 use App\Models\Branch;
+use App\Models\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -241,6 +242,10 @@ class BranchController extends Controller
         ]);
 
         session(['current_branch_id' => $request->branch_id]);
+
+        /** @var User $user */
+        $user = auth()->user();
+        $user->update(['last_branch_id' => $request->branch_id]);
 
         return back()->with('success', 'Đã chuyển chi nhánh thành công!');
     }

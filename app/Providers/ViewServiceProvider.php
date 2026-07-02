@@ -30,8 +30,6 @@ class ViewServiceProvider extends ServiceProvider
                 /** @var User $user */
                 $user = Auth::user();
 
-                $currentBranchId = session('current_branch_id');
-
                 if (!$user->hasRole('super_admin')) {
                     $branches = $user->allRoles
                         ->loadMissing('team')
@@ -39,6 +37,22 @@ class ViewServiceProvider extends ServiceProvider
                         ->filter()
                         ->unique('id')
                         ->values();
+
+                    $currentBranchId = session('current_branch_id');
+
+                    if (!$currentBranchId) {
+                        $currentBranchId = $user->last_branch_id;
+
+                        if (!$currentBranchId || !$branches->contains('id', $currentBranchId)) {
+                            $currentBranchId = $branches->first()?->id;
+                            if ($currentBranchId) {
+                                $user->forceFill([
+                                    'last_branch_id' => $currentBranchId,
+                                ])->save();
+                            }
+                        }
+                        session(['current_branch_id' => $currentBranchId]);
+                    }
                 }
             }
 

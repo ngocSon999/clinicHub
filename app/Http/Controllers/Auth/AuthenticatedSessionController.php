@@ -38,6 +38,8 @@ class AuthenticatedSessionController extends Controller
         $user = Auth::user();
         if (!$user->hasRole('super_admin')) {
             $request->session()->put('current_branch_id', $request->input('branch_id'));
+
+            $user->update(['last_branch_id' => $request->input('branch_id')]);
         }
 
         session()->save();
