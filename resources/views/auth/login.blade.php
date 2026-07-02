@@ -103,12 +103,12 @@
                         </button>
                     </form>
 
-                    <div class="text-center mt-5">
-                        <p class="text-muted small mb-0">
-                            Chưa có không gian làm việc?
-                            <a href="{{ route('register') }}" class="text-decoration-none fw-semibold text-primary">Đăng ký phòng khám mới</a>
-                        </p>
-                    </div>
+{{--                    <div class="text-center mt-5">--}}
+{{--                        <p class="text-muted small mb-0">--}}
+{{--                            Chưa có không gian làm việc?--}}
+{{--                            <a href="{{ route('register') }}" class="text-decoration-none fw-semibold text-primary">Đăng ký phòng khám mới</a>--}}
+{{--                        </p>--}}
+{{--                    </div>--}}
 
                 </div>
             </div>

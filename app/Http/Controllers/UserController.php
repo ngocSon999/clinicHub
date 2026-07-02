@@ -6,6 +6,7 @@ use App\Http\Requests\UserRequest;
 use App\Mail\NewUserPasswordMail;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\UserService;
 use Exception;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\View\Factory;
@@ -23,6 +24,13 @@ use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
+    protected UserService $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -33,51 +41,9 @@ class UserController extends Controller
 
     public function getList(Request $request): JsonResponse
     {
-        $perPage = $request->input('length', 10);
-        $start = $request->input('start', 0);
-        $page = ($start / $perPage) + 1;
-
-        $request->merge(['page' => $page]);
-
-        $searchValue = $request->input('search.value');
-
-        $query = User::with(['allRoles.team'])->select([
-            'users.id',
-            'users.name',
-            'users.email',
-            'users.created_at'
-        ]);
-
-        if (!empty($searchValue)) {
-            $query->where(function($q) use ($searchValue) {
-                $q->where('name', 'LIKE', "%{$searchValue}%")
-                    ->orWhere('email', 'LIKE', "%{$searchValue}%");
-            });
-        }
-        if ($request->has('order')) {
-            $columnIndex = $request->input('order.0.column');
-            $columnDirection = $request->input('order.0.dir', 'asc');
-            $columnName = $request->input("columns.{$columnIndex}.data");
-
-            $allowableColumns = ['id', 'email', 'name', 'created_at'];
-
-            if (!empty($columnName) && in_array($columnName, $allowableColumns)) {
-                $query->orderBy($columnName, $columnDirection);
-            } else {
-                $query->orderBy('id', 'desc');
-            }
-        } else {
-            $query->orderBy('id', 'desc');
-        }
-
-        $users = $query->paginate($perPage);
-
-        return response()->json([
-            'draw'            => intval($request->input('draw')),
-            'recordsTotal'    => $users->total(),
-            'recordsFiltered' => $users->total(),
-            'data'            => $users->items(),
-        ]);
+        return response()->json(
+            $this->userService->getList($request)
+        );
     }
 
     /**
@@ -204,19 +170,30 @@ class UserController extends Controller
 
     protected function syncUserRoles(User $user, array $roleIds): void
     {
-        $roles = Role::whereIn('id', $roleIds)->get();
+        $newRoles = Role::whereIn('id', $roleIds)->get();
 
-        $groupedRoles = $roles->groupBy('team_id');
+        $currentTeamIds = $user->allRoles()
+            ->select('roles.team_id')
+            ->distinct()
+            ->pluck('roles.team_id');
 
-        foreach ($groupedRoles as $teamId => $rolesInTeam) {
+        $newTeamIds = $newRoles
+            ->pluck('team_id')
+            ->unique();
+
+        $teamIds = $currentTeamIds
+            ->merge($newTeamIds)
+            ->unique();
+
+        foreach ($teamIds as $teamId) {
             setPermissionsTeamId($teamId);
+            $rolesOfTeam = $newRoles->where('team_id', $teamId);
 
-            $user->roles()
-                ->wherePivot('team_id', $teamId)
-                ->detach();
-
-            $user->assignRole($rolesInTeam);
+            $user->syncRoles($rolesOfTeam);
         }
+
+        $user->unsetRelation('roles');
+        $user->unsetRelation('permissions');
     }
 
     /**

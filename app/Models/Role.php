@@ -2,13 +2,21 @@
 
 namespace App\Models;
 
+use App\Traits\HasSearchable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 class Role extends SpatieRole
 {
+    use HasSearchable;
+
     protected $table = 'roles';
     protected $fillable = ['name', 'guard_name', 'team_id'];
+
+    public const SEARCHABLE = [
+        'name',
+        'team_id'
+    ];
 
     public function team(): BelongsTo
     {

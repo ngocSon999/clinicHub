@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\HasSearchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Branch extends Model
 {
+    use HasSearchable;
+
     protected $table = 'branches';
 
     protected $fillable = [
@@ -21,6 +24,13 @@ class Branch extends Model
         'status'
     ];
 
+    public const SEARCHABLE = [
+        'name',
+        'code',
+        'phone',
+        'address_detail',
+        'full_address',
+    ];
 
     public function roles(): HasMany
     {

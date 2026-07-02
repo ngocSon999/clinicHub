@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+ use App\Traits\HasSearchable;
  use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,6 +16,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
     use HasRoles;
+    use HasSearchable;
 
     protected $table = 'users';
     /**
@@ -27,6 +29,12 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'last_branch_id', 'phone', 'avatar'
+    ];
+
+    public const SEARCHABLE = [
+        'name',
+        'email',
+        'phone',
     ];
 
     /**

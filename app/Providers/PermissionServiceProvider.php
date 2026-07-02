@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 
 class PermissionServiceProvider extends ServiceProvider
@@ -20,15 +21,13 @@ class PermissionServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Gate::before(function ($user, string $ability) {
-            $currentTeam = getPermissionsTeamId();
-
-            setPermissionsTeamId(null);
-            $isSuperAdmin = $user->hasRole('super_admin');
-
-            setPermissionsTeamId($currentTeam);
-
-            return $isSuperAdmin ? true : null;
+        Gate::before(function ($user, $ability) {
+            return $user->allRoles()
+                ->whereNull('roles.team_id')
+                ->where('roles.name', 'super_admin')
+                ->exists()
+                ? true
+                : null;
         });
     }
 }

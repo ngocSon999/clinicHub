@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BranchRequest;
 use App\Models\Branch;
 use App\Models\User;
+use App\Services\BranchService;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -18,9 +19,22 @@ use Exception;
 
 class BranchController extends Controller
 {
+    protected BranchService $branchService;
+
+    public function __construct(BranchService $branchService)
+    {
+        $this->branchService = $branchService;
+    }
     public function index(): Factory|View
     {
         return view('branch.index');
+    }
+
+    public function getList(Request $request): JsonResponse
+    {
+        return response()->json(
+            $this->branchService->getList($request)
+        );
     }
 
     public function create(): Factory|View
@@ -35,59 +49,6 @@ class BranchController extends Controller
         $provinces = $addressData['province'] ?? [];
 
         return view('branch.create', compact('provinces'));
-    }
-
-    public function getList(Request $request): JsonResponse
-    {
-        $perPage = $request->input('length', 10);
-        $start = $request->input('start', 0);
-        $page = ($start / $perPage) + 1;
-
-        $request->merge(['page' => $page]);
-
-        $searchValue = $request->input('search.value');
-
-        $query = Branch::select([
-            'id',
-            'code',
-            'name',
-            'phone',
-            'full_address',
-            'status',
-            'created_at'
-        ]);
-
-        if (!empty($searchValue)) {
-            $query->where(function($q) use ($searchValue) {
-                $q->where('name', 'LIKE', "%{$searchValue}%")
-                    ->orWhere('code', 'LIKE', "%{$searchValue}%")
-                    ->orWhere('phone', 'LIKE', "%{$searchValue}%")
-                    ->orWhere('full_address', 'LIKE', "%{$searchValue}%");
-            });
-        }
-
-        if ($request->has('order')) {
-            $columnIndex = $request->input('order.0.column');
-            $columnDirection = $request->input('order.0.dir', 'asc');
-            $columnName = $request->input("columns.{$columnIndex}.data");
-
-            $allowableColumns = ['code', 'name', 'phone', 'full_address', 'status', 'created_at'];
-
-            if (in_array($columnName, $allowableColumns)) {
-                $query->orderBy($columnName, $columnDirection);
-            }
-        } else {
-            $query->orderBy('id', 'desc');
-        }
-
-        $branches = $query->paginate($perPage);
-
-        return response()->json([
-            'draw'            => intval($request->input('draw')),
-            'recordsTotal'    => $branches->total(),
-            'recordsFiltered' => $branches->total(),
-            'data'            => $branches->items(),
-        ]);
     }
 
     public function getCommunes(Request $request): JsonResponse

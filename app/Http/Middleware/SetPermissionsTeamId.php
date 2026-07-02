@@ -20,20 +20,11 @@ class SetPermissionsTeamId
         if (Auth::check()) {
             /** @var User $user */
             $user = Auth::user();
+            if ($teamId = session('current_branch_id')) {
+                setPermissionsTeamId($teamId);
 
-            $currentTeam = getPermissionsTeamId();
-
-            setPermissionsTeamId(null);
-            $isSuperAdmin = $user->hasRole('super_admin');
-
-            setPermissionsTeamId($currentTeam);
-
-            if (!$isSuperAdmin) {
-                if ($teamId = session('current_branch_id')) {
-                    setPermissionsTeamId($teamId);
-                    $user->unsetRelation('roles');
-                    $user->unsetRelation('permissions');
-                }
+                $user->unsetRelation('roles');
+                $user->unsetRelation('permissions');
             }
         }
 

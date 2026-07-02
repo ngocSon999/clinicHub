@@ -4,6 +4,7 @@ use App\Models\Branch;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Services\PermissionTeamResolve;
+use Spatie\Permission\DefaultTeamResolver;
 
 return [
 
@@ -154,7 +155,7 @@ return [
     /*
      * The class to use to resolve the permissions team id
      */
-    'team_resolver' => PermissionTeamResolve::class,
+    'team_resolver' => DefaultTeamResolver::class,
 
     /*
      * Passport Client Credentials Grant
