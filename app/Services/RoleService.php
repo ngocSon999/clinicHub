@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Models\Role;
+use App\Models\User;
 use App\Repositories\Contracts\RoleRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class RoleService extends BaseDataTableService
@@ -20,6 +22,12 @@ class RoleService extends BaseDataTableService
     {
         $query = $this->roleRepository->query()
             ->with(['permissions', 'team']);
+
+        /** @var User $user */
+        $user = Auth::user();
+        if (!$user->hasRole('super_admin')) {
+            $query->where('name', '!=', 'super_admin');
+        }
 
         return $this->paginate(
             $query,
@@ -47,12 +55,6 @@ class RoleService extends BaseDataTableService
 
             if ($permissions) {
                 $role->syncPermissions($permissions);
-
-                DB::table('role_permissions')
-                    ->where('role_id', $role->id)
-                    ->update([
-                        'team_id' => $data['branch_id'],
-                    ]);
             }
         });
     }
